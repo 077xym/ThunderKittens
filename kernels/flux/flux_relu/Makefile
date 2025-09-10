@@ -5,23 +5,15 @@ GPU_TARGET=H100
 NVCC?=nvcc
 
 NVCCFLAGS=-DNDEBUG -Xcompiler=-fPIE -Xcompiler -fopenmp --expt-extended-lambda --expt-relaxed-constexpr -Xcompiler=-Wno-psabi -Xcompiler=-fno-strict-aliasing --use_fast_math -forward-unknown-to-host-compiler -O3  -Xnvlink=--verbose -Xptxas=--verbose -Xptxas=--warn-on-spills -std=c++20 -MD -MT -MF -x cu -lrt -lpthread -ldl -DKITTENS_HOPPER -arch=sm_90a -lcuda -lcudadevrt -lcudart_static -lcublas -lgomp -I${THUNDERKITTENS_ROOT}/include -I${THUNDERKITTENS_ROOT}/prototype # H100
-TARGET_SWIZZLE=matmul_swizzle
-SRC_SWIZZLE=matmul_swizzle.cu
-TARGET_NORMAL=matmul_no_swizzle
-SRC_NORMAL=matmul_no_swizzle.cu
+TARGET=flux_relu
+SRC=flux_relu.cu
 
-swizzle: $(TARGET_SWIZZLE)
+# Default target
+all: $(TARGET)
 
-$(TARGET_SWIZZLE): $(SRC_SWIZZLE)
-	$(NVCC) $(SRC_SWIZZLE) $(NVCCFLAGS) -o $(TARGET_SWIZZLE)
-
-normal: $(TARGET_NORMAL)
-
-$(TARGET_NORMAL): $(SRC_NORMAL)
-	$(NVCC) $(SRC_NORMAL) $(NVCCFLAGS) -o $(TARGET_NORMAL)
-
+$(TARGET): $(SRC)
+	$(NVCC) $(SRC) $(NVCCFLAGS) -o $(TARGET)
 
 # Clean target
 clean:
-	rm -f $(TARGET_NORMAL)
-	rm -f $(TARGET_SWIZZLE)
+	rm -f $(TARGET)
